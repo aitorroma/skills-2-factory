@@ -127,6 +127,31 @@ Necesito una skill para crear una VM en Google Cloud con Terraform.
 
 Con contexto suficiente, el pipeline continúa hasta la validación y la publicación.
 
+## Instalación desde Hermit
+
+Si quieres instalar una skill sin depender de `clawdhub`, puedes usar `npx` con el paquete `skills2f` o el script local.
+
+Variables de ejemplo:
+
+```bash
+export HERMIT_URL=https://hermit.example.com
+export HERMIT_TOKEN=hc_example_token_123456
+```
+
+Con `npx`:
+
+```bash
+npx skills2f install-skill myskillname
+npx skills2f install-skill myskillname 1.2.3 /tmp/myskillname
+```
+
+Con este repo:
+
+```bash
+./install-skill.sh myskillname
+./install-skill.sh myskillname 1.2.3 /tmp/myskillname
+```
+
 ## Scripts disponibles
 
 Validar una skill:
@@ -138,10 +163,14 @@ Validar una skill:
 Publicar una skill:
 
 ```bash
-./publish.sh skills/nombre-skill
+./publish.sh skills/nombre-skill [version]
 ```
 
-`validate.sh` intenta usar `skills-ref` si está disponible. Si no lo encuentra, ejecuta una validación local básica de Skills 2.0 para no bloquear el flujo.
+Instalar una skill descargándola desde Hermit:
+
+```bash
+./install-skill.sh nombre-skill [version] [destino]
+```
 
 ## Estructura del sistema
 
