@@ -172,6 +172,7 @@ FASE 3 — Validación y publicación
 - **Qué hace:** evalúa si conviene usar `mcp2cli` como backend runtime de la skill y propone estructura, modo de uso y requisitos.
 - **Guía local:** `agents/mcp2cli-toolsmith.md`
 - **Devuelve al Lead:** decisión `sí/no`, modo recomendado (`--spec`, `--mcp`, `--mcp-stdio`), estructura de skill, requisitos y riesgos.
+- **Instalación a contemplar:** debe indicar si la skill usará `pip install mcp2cli` o `uvx mcp2cli`, sin asumir que la herramienta existe ya en el entorno.
 - **Condición de salida:** termina cuando el Arquitecto puede decidir la estructura de la skill sin reinterpretar la API.
 
 ### Validador

@@ -38,6 +38,8 @@ La separación entre teammates y subagentes es importante: los teammates colabor
 
 Cuando el input del usuario es una API o un servidor MCP, la factoría puede invocar el agente `MCP2CLI Toolsmith` para decidir si la skill debe usar `mcp2cli` como capa de tools en runtime.
 
+Si ese camino se elige, la skill debe dejar explícito cómo ejecutar `mcp2cli`: con `pip install mcp2cli` o directamente con `uvx mcp2cli`.
+
 ## Requisitos
 
 - Claude Code con `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
