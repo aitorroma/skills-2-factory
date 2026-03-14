@@ -81,6 +81,16 @@ docker compose up -d
 
 Después crea una API key en `http://localhost:8080/admin` y copia el valor a `HERMIT_TOKEN`.
 
+Si necesitas un despliegue propio detrás de Traefik, este repo incluye una plantilla en `hermit.yaml` con el host `skills.tudominio.com`.
+
+La plantilla de `hermit.yaml` está pensada para Docker Swarm. Actualiza los placeholders de credenciales, usuario y dominio antes de desplegar.
+
+Despliegue en Swarm:
+
+```bash
+docker stack deploy -c hermit.yaml hermit
+```
+
 ## Uso básico
 
 Abre Claude Code dentro del proyecto:
@@ -117,6 +127,7 @@ Publicar una skill:
 
 - `README.md`: visión general y puesta en marcha.
 - `CLAUDE.md`: reglas operativas del equipo, roles y formato esperado para una skill completa.
+- `hermit.yaml`: plantilla de despliegue de Hermit con Traefik y credenciales anonimizadas.
 - `validate.sh`: validación de skills 2.0.
 - `publish.sh`: publicación e instalación local de carpetas de skill completas.
 

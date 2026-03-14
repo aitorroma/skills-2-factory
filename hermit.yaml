@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hermit
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: <POSTGRES_PASSWORD>
+    ports:
+      - "5432:5432"
+    volumes:
+      - hermit_pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hermit"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+  server:
+    image: tuxed/hermit:latest
+    volumes:
+      - hermit_data:/data
+    environment:
+      LISTEN_ADDR: ":8080"
+      DATABASE_URL: postgres://postgres:<POSTGRES_PASSWORD>@postgres:5432/hermit?sslmode=disable
+      STORAGE_BACKEND: local
+      STORAGE_ROOT: /data
+      WEB_DIR: /app/web
+      ADMIN_TOKEN: <ADMIN_TOKEN>
+      ADMIN_USERNAME: <ADMIN_USERNAME>
+      ADMIN_PASSWORD: <ADMIN_PASSWORD>
+      BOOTSTRAP_DEFAULT_REPOS: "true"
+    networks:
+      - internal
+      - network_public
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=network_public
+        - traefik.http.routers.hermit-http.rule=Host(`skills.tudominio.com`)
+        - traefik.http.routers.hermit-http.entrypoints=web
+        - traefik.http.routers.hermit-http.middlewares=hermit-https-redirect
+        - traefik.http.middlewares.hermit-https-redirect.redirectscheme.scheme=https
+        - traefik.http.routers.hermit-https.rule=Host(`skills.tudominio.com`)
+        - traefik.http.routers.hermit-https.entrypoints=websecure
+        - traefik.http.routers.hermit-https.tls=true
+        - traefik.http.routers.hermit-https.tls.certresolver=letsencryptresolver
+        - traefik.http.services.hermit.loadbalancer.server.port=8080
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  hermit_pgdata:
+  hermit_data:
+
+networks:
+  network_public:
+    external: true
+  internal:
+    driver: overlay
