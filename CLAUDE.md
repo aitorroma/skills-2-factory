@@ -21,6 +21,7 @@ Agent Team (4 sesiones):
 
 Subagentes (corren dentro del Lead, sin sesión propia):
   Investigador  → busca docs oficiales, devuelve research
+  MCP2CLI Toolsmith → evalúa si una API/MCP debe resolverse con mcp2cli
   Validador     → ejecuta validate.sh, devuelve PASS/FAIL
   Publisher     → publica en portal y verifica
 ```
@@ -39,6 +40,7 @@ FASE 1 — Solo el Lead
 1. Lead recibe el request del usuario
 2. Lead detecta ambigüedades bloqueantes → pregunta antes de arrancar
 3. Lead lanza Investigador (subagente, SIN team_name) → recibe research
+3.1. Si el request incluye OpenAPI, MCP o generación de tools desde APIs: Lead lanza MCP2CLI Toolsmith (subagente, SIN team_name)
 
 FASE 2 — El equipo entra con contexto
 4. Lead crea task list con dependencias
@@ -53,7 +55,7 @@ FASE 3 — Validación y publicación
 10. Si pasa: Lead lanza Publisher (subagente, SIN team_name) → verifica en portal
 ```
 
-**Instrucción crítica para el Lead:** Los subagentes (Investigador, Validador, Publisher) se lanzan con el Task tool **SIN el parámetro team_name**. Los teammates (Arquitecto, Revisor, Optimizador) se lanzan **CON team_name**.
+**Instrucción crítica para el Lead:** Los subagentes (Investigador, MCP2CLI Toolsmith, Validador, Publisher) se lanzan con el Task tool **SIN el parámetro team_name**. Los teammates (Arquitecto, Revisor, Optimizador) se lanzan **CON team_name**.
 
 ---
 
@@ -70,6 +72,8 @@ FASE 3 — Validación y publicación
 **No pregunta** si la información faltante puede ser un placeholder genérico (`<DOMAIN>`, `<PROJECT_ID>`, `<API_KEY>`).
 
 **Solo cuando tiene contexto suficiente:** lanza primero el subagente Investigador con el brief completo. Cuando el Investigador devuelve resultados, crea la task list e incluye el research en el spawn prompt de los teammates. No spawna el equipo sin el research listo.
+
+**Si la skill depende de OpenAPI o MCP:** lanza además el subagente MCP2CLI Toolsmith y añade su salida al contexto del Arquitecto antes de que diseñe la estructura final.
 
 **Condición de salida:** termina cuando la skill está publicada y verificada en el portal. No agrega tareas adicionales ni "mejoras" no solicitadas.
 
@@ -162,6 +166,13 @@ FASE 3 — Validación y publicación
 - **Pregunta central:** "¿Qué necesita saber Claude para ejecutar esto?" — no "¿cómo lo hace un humano?"
 - **Devuelve resultados al Lead** (no al Arquitecto). El Lead los incluye en el spawn prompt del Arquitecto.
 - **Condición de salida:** termina cuando buscó en máximo 2 fuentes primarias. Si no encuentra fuente, lo reporta y termina — no sigue buscando indefinidamente.
+
+### MCP2CLI Toolsmith
+- **Lanzado por:** Lead, solo cuando hay OpenAPI, MCP o una petición explícita de generar tools desde APIs. **Sin team_name.**
+- **Qué hace:** evalúa si conviene usar `mcp2cli` como backend runtime de la skill y propone estructura, modo de uso y requisitos.
+- **Guía local:** `agents/mcp2cli-toolsmith.md`
+- **Devuelve al Lead:** decisión `sí/no`, modo recomendado (`--spec`, `--mcp`, `--mcp-stdio`), estructura de skill, requisitos y riesgos.
+- **Condición de salida:** termina cuando el Arquitecto puede decidir la estructura de la skill sin reinterpretar la API.
 
 ### Validador
 - **Lanzado por:** Lead, después de que el Optimizador termina. **Sin team_name.**
@@ -266,7 +277,7 @@ No inventar branding, iconos ni colores si no fueron pedidos o no aportan nada.
 4. **Skills para Claude, no para humanos.** No explicar lo que Claude ya sabe.
 5. **El Optimizador substrae, no agrega.** Su trabajo es eliminar, mover a recursos o simplificar; no enriquecer.
 6. **Sin validación, sin publicación.** El Publisher no corre si el Validador falló.
-7. **Subagentes SIN team_name.** El Lead lanza Investigador, Validador y Publisher con el Task tool sin el parámetro team_name. Esto los mantiene como subagentes (corren dentro del Lead) en vez de teammates.
+7. **Subagentes SIN team_name.** El Lead lanza Investigador, MCP2CLI Toolsmith, Validador y Publisher con el Task tool sin el parámetro team_name. Esto los mantiene como subagentes (corren dentro del Lead) en vez de teammates.
 8. **Condiciones de salida explícitas.** Cada rol termina cuando su condición se cumple — no antes, no después.
 9. **Todos los agentes se comunican en español.**
 10. **Cada bloque debe reducir ambigüedad.** Si una sección no cambia una decisión o una ejecución, sobra.

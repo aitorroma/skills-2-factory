@@ -36,6 +36,8 @@ El flujo se divide en tres etapas:
 
 La separación entre teammates y subagentes es importante: los teammates colaboran entre sí; los subagentes ejecutan tareas concretas y devuelven un resultado.
 
+Cuando el input del usuario es una API o un servidor MCP, la factoría puede invocar el agente `MCP2CLI Toolsmith` para decidir si la skill debe usar `mcp2cli` como capa de tools en runtime.
+
 ## Requisitos
 
 - Claude Code con `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
@@ -127,6 +129,7 @@ Publicar una skill:
 
 - `README.md`: visión general y puesta en marcha.
 - `CLAUDE.md`: reglas operativas del equipo, roles y formato esperado para una skill completa.
+- `agents/mcp2cli-toolsmith.md`: agente opcional para evaluar integración de OpenAPI/MCP con `mcp2cli`.
 - `hermit.yaml`: plantilla de despliegue de Hermit con Traefik y credenciales anonimizadas.
 - `validate.sh`: validación de skills 2.0.
 - `publish.sh`: publicación e instalación local de carpetas de skill completas.
